@@ -1,0 +1,35 @@
+#PBS -l walltime=10:00:00
+#PBS -l select=1:ncpus=1:NodeType=medium
+#PBS -e stderr.txt
+#PBS -o stdout.txt
+#PBS -A uq-ITEE
+
+source /usr/share/modules/init/bash
+
+rm -R /work1/s4141073/DyableCollection/GlobalData/LogFile
+mkdir /work1/s4141073/DyableCollection/GlobalData/LogFile
+
+rm -R /work1/s4141073/DyableCollection/GlobalData/LinkSet
+mkdir /work1/s4141073/DyableCollection/GlobalData/LinkSet
+
+rm -R /work1/s4141073/DyableCollection/GlobalData/SummaryLinks
+mkdir /work1/s4141073/DyableCollection/GlobalData/SummaryLinks
+
+rm -R /work1/s4141073/DyableCollection/GlobalData/SortedHits
+mkdir /work1/s4141073/DyableCollection/GlobalData/SortedHits
+
+rm -R /work1/s4141073/DyableCollection/GlobalData/Keywords
+mkdir /work1/s4141073/DyableCollection/GlobalData/Keywords
+
+rm -R /work1/s4141073/DyableCollection/GlobalData/ClusterHiearchy
+mkdir /work1/s4141073/DyableCollection/GlobalData/ClusterHiearchy
+
+rm -R /work1/s4141073/DyableCollection/GlobalData/PulseRank
+mkdir /work1/s4141073/DyableCollection/GlobalData/PulseRank
+
+rm -R /work1/s4141073/DyableCollection/GlobalData/Excerpts
+mkdir /work1/s4141073/DyableCollection/GlobalData/Excerpts
+
+rm -R /work1/s4141073/DyableCollection/GlobalData/HitList
+mkdir /work1/s4141073/DyableCollection/GlobalData/HitList
+

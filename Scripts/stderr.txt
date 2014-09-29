@@ -1,0 +1,19 @@
+########################### Execution Started #############################
+JobId:667301.pbsserver
+UserName:s4141073
+GroupName:uq
+ExecutionHost:b02b03
+WorkingDir:/var/spool/PBS/mom_priv
+###############################################################################
+########################### Job Execution History #############################
+JobId:667301.pbsserver
+UserName:s4141073
+GroupName:uq
+JobName:remove1
+SessionId:5666
+ResourcesRequested:ncpus=1,place=free,walltime=10:00:00
+ResourcesUsed:cpupercent=2,cput=00:00:53,mem=1068kb,ncpus=1,vmem=32036kb,walltime=01:12:13
+QueueUsed:workq
+AccountString:uq-ITEE
+ExitStatus:0
+###############################################################################

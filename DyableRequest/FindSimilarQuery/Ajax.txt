@@ -1,0 +1,100 @@
+<style type="text/css">
+
+.sum {width:70%; border: 1px solid blue; background-color: rgb(240, 240, 240); position: relative; padding: 0.5em; margin: 0  0 0.75em; cursor: move;}
+
+th, td {text-align: left; padding-right: 1em;}
+
+		.black_overlay{
+			display: none;
+			position: absolute;
+			top: 0%;
+			left: 0%;
+			width: 100%;
+			height: 100%;
+			background-color: black;
+			z-index:20000;
+			-moz-opacity: 0.8;
+			opacity:.80;
+			filter: alpha(opacity=80);
+		}
+		.white_content {
+			display: none;
+			position: absolute;
+			top: 30%;
+			left: 5%;
+			width: 95%;
+			height: 475px;
+			padding: 5px;
+			border: 0px;
+			background-color: white;
+			z-index:30000;
+			overflow: auto;
+			opacity:1;
+		}
+
+	</style>
+	
+<div id="backdrop" class="black_overlay">
+
+<div class="white_content" id="block_excerpt"></div>
+</div>
+
+<script type="text/javascript">
+
+function loadXMLDoc(doc_id, node_id, excerpt_id, query, focus, word_id_set)
+{
+var xmlhttp; 
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    
+        var text = xmlhttp.responseText;
+        
+
+	var offset = 0;
+        for(var i=0; i<text.length; i++) {
+            if(text.charAt(i) == '`') {
+                offset = i;
+                break;
+            }
+        }
+
+
+        var summary_tag = "summary";
+        summary_tag += excerpt_id.toString();
+        document.getElementById(summary_tag).innerHTML = "<font size=\"0\">" + text.substring(0, offset) + "</font>";
+        document.getElementById(summary_tag).style.display="block";
+        
+        var excerpt_tag = "excerpt";
+        excerpt_tag += excerpt_id.toString();
+        document.getElementById(excerpt_tag).innerHTML = doc_id.toString() + " " + text.substring(offset+1, text.length);
+        document.getElementById(excerpt_tag).style.display="none";
+    }
+  }
+
+var text = "http://localhost/cgi-bin/DocumentQuery?doc=";
+text += doc_id.toString();
+text += "&q=";
+text += query;
+text += "&f=";
+text += focus;
+text += "&f=";
+text += "&node=";
+text += node_id;
+text += "&id_set=";
+text += word_id_set;
+
+
+xmlhttp.open("GET", text, true);
+xmlhttp.send();
+}
+</script>

@@ -1,0 +1,20 @@
+########################### Execution Started #############################
+JobId:628458.pbsserver
+UserName:s4141073
+GroupName:uq
+ExecutionHost:b02a07
+WorkingDir:/var/spool/PBS/mom_priv
+###############################################################################
+-bash: line 1: /var/spool/PBS/mom_priv/jobs/628458.pbsserver.SC: No such file or directory
+########################### Job Execution History #############################
+JobId:628458.pbsserver
+UserName:s4141073
+GroupName:uq
+JobName:moveTREC
+SessionId:25113
+ResourcesRequested:ncpus=1,place=pack,walltime=01:00:00
+ResourcesUsed:cpupercent=0,cput=00:00:00,mem=316kb,ncpus=1,vmem=12324kb,walltime=00:00:01
+QueueUsed:workq
+AccountString:uq-ITEE
+ExitStatus:127
+###############################################################################

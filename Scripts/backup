@@ -1,0 +1,22 @@
+#PBS -l walltime=3:00:00
+#PBS -l select=1:ncpus=1:NodeType=medium
+#PBS -e stderr.txt
+#PBS -o stdout.txt
+#PBS -A uq-ITEE
+
+source /usr/share/modules/init/bash
+
+cp -R /work1/s4141073/DyableCollection/DyableWebGraph /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/DyableCommand /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/DyableDocument /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/DyableHitList /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/DyableLexonWords /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/DyableMapReduce /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/DyableMPI /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/DyableParseTREC /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/DyableSort /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/DataStructure.h /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/DocumentDatabase.h /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/FileStorage.h /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/MyStuff.h /HPC/home/s4141073/DyableCollection
+cp -R /work1/s4141073/DyableCollection/ProcessSet.h /HPC/home/s4141073/DyableCollection

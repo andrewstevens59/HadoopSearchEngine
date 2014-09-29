@@ -1,0 +1,9 @@
+#PBS -l walltime=80:00:00
+#PBS -l select=1:ncpus=1:NodeType=medium
+#PBS -e stderr.txt
+#PBS -o stdout.txt
+#PBS -A uq-ITEE
+
+source /usr/share/modules/init/bash
+
+cp -R /work1/s4141073/DyableCollection/GlobalData/All /HPC/home/s4141073/All

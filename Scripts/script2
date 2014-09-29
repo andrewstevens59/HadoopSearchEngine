@@ -1,0 +1,11 @@
+#PBS -l walltime=5:00:00
+#PBS -l select=32:ncpus=4:NodeType=medium:mpiprocs=4
+#PBS -e stderr.txt
+#PBS -o stdout.txt
+#PBS -A uq-ITEE
+
+source /usr/share/modules/init/bash
+module load intel-mpi
+module load intel-cc-11
+module load intel-fc-11
+mpirun -np 128 /work1/s4141073/DyableCollection/DyableMPI/DyableMPISpawn

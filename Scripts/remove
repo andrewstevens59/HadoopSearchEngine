@@ -1,0 +1,11 @@
+#PBS -l walltime=10:00:00
+#PBS -l select=1:ncpus=1:NodeType=medium
+#PBS -e stderr.txt
+#PBS -o stdout.txt
+#PBS -A uq-ITEE
+
+source /usr/share/modules/init/bash
+
+rm -R /work1/s4141073/DyableCollection/LocalData
+mkdir /work1/s4141073/DyableCollection/LocalData
+

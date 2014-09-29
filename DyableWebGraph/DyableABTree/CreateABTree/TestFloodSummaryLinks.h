@@ -1,0 +1,208 @@
+#include "./TestCreateABTree.h"
+
+// This defines a level on the depth first search 
+// it stores the total number of children left to
+// be processed on the level and also the number 
+// of nodes added on the level.
+struct SLevel {
+
+	// This stores the maximum number of s_links allowed in a given level
+	int max_s_link_num;
+	// This stores the number of children left on the level
+	int child_num;
+	// This stores a predicate stating if s_links have 
+	// been flushed externally yet
+	bool flushed;
+	// This is used to open the overflow s_link for reading
+	// only once at the start of the level
+	bool is_ovf_s_link_open;
+
+	SLevel() {
+	}
+
+	void Set(int child_num, int max_s_link_num) {
+		flushed = false;
+		is_ovf_s_link_open = false;
+		this->child_num = child_num;
+		this->max_s_link_num = max_s_link_num;
+	}
+};
+
+// This class is responsible for flooding the hiearchy with s_links
+// and comparing the output generated against the external hiearchy.
+// This class is needed before ABTrees can be built.
+class CTestFloodSummaryLinks : public CNodeStat {
+
+	// This stores the maximum number of s_links that
+	// can be sotred at any one node in the hiearchy
+	static const int MAX_S_LINK_NUM = 1000;
+
+	// This stores the number of children still to be processed
+	// on a given level of the tree
+	CArray<SLevel> m_search_path;
+	// This stores the set of s_links
+	CTrie m_s_link_map;
+
+	// This process a given hiearhy segment
+	void LoadHiearchySegment(CHDFSFile &hiearchy_file) {
+
+		static SSubTree subtree;
+		while(true) {
+			while(m_search_path.LastElement().child_num == 0) {
+				m_search_path.PopBack();
+
+				if(m_search_path.Size() == 0) {
+					return;
+				}
+			}
+
+			m_search_path.LastElement().child_num--;
+
+			if(m_search_path.Size() < m_search_path.OverflowSize()) {
+
+				subtree.ReadSubTree(hiearchy_file);
+
+				m_search_path.ExtendSize(1);
+				m_search_path.LastElement().Set(subtree.child_num, subtree.net_trav_prob);
+				m_hiearchy[m_search_path.Size() - 1].ExtendSize(1);
+				m_hiearchy[m_search_path.Size() - 1].LastElement().subtree = subtree;
+			}
+		}
+	}
+
+	// This loads the cluster hiearchy 
+	void LoadClusterHiearchy(int hash_div) {
+
+		CHDFSFile hiearchy_file;
+		hiearchy_file.OpenReadFile(CUtility::ExtendString
+			(CLUSTER_HIEARCHY_DIR, GetInstID(), ".set", hash_div));
+
+		m_hiearchy.Initialize(CNodeStat::GetHiearchyLevelNum());
+		m_hiearchy.ExtendSize(CNodeStat::GetHiearchyLevelNum());
+
+		SHiearchyStat stat;
+		SClusterMap clus_map;
+		SSubTree subtree;
+
+		m_search_path.Initialize(CNodeStat::GetHiearchyLevelNum());
+		while(stat.ReadHiearchyStat(hiearchy_file)) {
+			for(int i=0; i<stat.total_node_num; i++) {
+				hiearchy_file.ReadCompObject(clus_map.base_node);
+			}
+
+			subtree.ReadSubTree(hiearchy_file);
+
+			m_search_path.Resize(1);
+			m_search_path.LastElement().Set(subtree.child_num, subtree.net_trav_prob);
+			m_hiearchy[m_search_path.Size() - 1].ExtendSize(1);
+			m_hiearchy[m_search_path.Size() - 1].LastElement().subtree = subtree;
+		
+			LoadHiearchySegment(hiearchy_file);
+		}
+	}
+
+
+public:
+
+	CTestFloodSummaryLinks() {
+	}
+
+	// This loads in the data structures already created previously.
+	void Initialize(int hash_div) {
+
+		SSummaryLink s_link;
+		CArrayList<SSummaryLink> s_link_buff(4);
+
+		CHDFSFile s_link_file;
+		s_link_file.OpenReadFile(CUtility::ExtendString
+			("GlobalData/LinkSet/s_link_set0.set", CNodeStat::GetClientID()));
+
+		m_s_link_map.Initialize(4);
+		while(s_link.ReadSLink(s_link_file)) {
+			s_link_buff.PushBack(s_link);
+			m_s_link_map.AddWord((char *)&s_link, sizeof(S5Byte) << 1);
+			if(m_s_link_map.AskFoundWord()) {
+				//cout<<"s_link already used1";getchar();
+			}
+		}
+
+		LoadClusterHiearchy(hash_div);
+	}
+
+	// This tests a given level of the hiearchy for a particular client
+	// by running through all the different ab nodes.
+	void TestHiearchyLevel(CFileSet<CHDFSFile> &s_link_set,
+		CVector<SHiearchy> &curr_level, int level, 
+		_int64 client_node_offset, CMemoryChunk<bool> &s_link_used) {
+
+		SABNode ab_node;
+		SSummaryLink s_link;
+		_int64 level_offset = client_node_offset;
+		for(int k=0; k<curr_level.Size(); k++) {
+			if(!ab_node.ReadABNode(s_link_set.File(level))) {
+				return;
+			}
+
+			if(ab_node.total_node_num != curr_level[k].subtree.node_num) {
+				cout<<"Total Num Mismatch "<<ab_node.total_node_num;getchar();
+			}
+
+			_int64 end = level_offset + ab_node.total_node_num;
+			for(int j=0; j<ab_node.s_link_num; j++) {
+				s_link.ReadReducedSLink(s_link_set.File(level));
+				int id = m_s_link_map.FindWord((char *)&s_link, sizeof(S5Byte) << 1);
+				if(id < 0) {
+					cout<<"SLink Not Found";getchar();
+				}
+
+				if(s_link_used[id] == true) {
+				//	cout<<"s_link already used";getchar();
+				}
+
+				s_link_used[id] = true;
+
+				if(s_link.src < level_offset) {
+					cout<<"SRC error";getchar();
+				}
+
+				if(s_link.src >= end) {
+					cout<<"DST error";getchar();
+				}
+			}
+
+			level_offset += ab_node.total_node_num;
+		}
+	}
+
+	// This tests the output generated by looking at the s_links
+	// in the external hiearchy. 
+	void TestFloodSLinks(_int64 client_node_offset) {
+
+		CFileSet<CHDFSFile> s_link_set("LocalData/ab_tree_fin");
+		s_link_set.AllocateFileSet(GetHiearchyLevelNum());
+		CMemoryChunk<bool> s_link_used(m_s_link_map.Size(), false);
+
+		SSummaryLink s_link;
+		SABNode ab_node;
+		for(int i=0; i<GetHiearchyLevelNum(); i++) {
+
+			s_link_set.OpenReadFile(i, GetClientID());
+				
+			CVector<SHiearchy> &curr_level = m_hiearchy[i];
+			TestHiearchyLevel(s_link_set, curr_level, i, 
+				client_node_offset, s_link_used);
+
+			if(ab_node.ReadABNode(s_link_set.File(i))) {
+				cout<<"more ab_nodes "<<i;getchar();
+			}
+		}
+
+		for(int i=0; i<s_link_used.OverflowSize(); i++) {
+			if(s_link_used[i] == false) {
+				char *buff = m_s_link_map.GetWord(i);
+				cout<<((S5Byte *)buff)->Value()<<" "<<((S5Byte *)buff + 1)->Value();getchar();
+				cout<<"s_link not used "<<i;getchar();
+			}
+		}
+	}
+};
